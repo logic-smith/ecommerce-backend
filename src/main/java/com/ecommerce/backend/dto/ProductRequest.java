@@ -19,5 +19,8 @@ public record ProductRequest(
 
         @NotNull(message = "Stock quantity is required")
         @Min(value = 0, message = "Stock quantity cannot be negative")
-        Integer stockQuantity
+        Integer stockQuantity,
+
+        @NotNull(message = "Category ID is required")
+        Long categoryId
 ) {}
