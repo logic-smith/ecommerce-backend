@@ -10,7 +10,11 @@ import com.ecommerce.backend.repository.CategoryRepository;
 import com.ecommerce.backend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import com.ecommerce.backend.dto.PagedResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import java.util.List;
 
 @Service
@@ -89,6 +93,29 @@ public class ProductService {
                 product.getPrice(),
                 product.getStockQuantity(),
                 categoryDto
+        );
+    }
+
+    public PagedResponse<ProductResponse> getAllProducts(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        List<ProductResponse> content = productPage.getContent()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+
+        return new PagedResponse<>(
+                content,
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages(),
+                productPage.isLast()
         );
     }
 }
